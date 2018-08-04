@@ -55,3 +55,12 @@ Cons:
 
 Please use the test application distributed with this driver as a starting point in developing your own
 firmware for this platform. It can be easily adapted for any hardware platform.
+
+To build the example using vagrant do:
+
+```
+vagrant up
+vagrant ssh
+cd test_olimex_lpc_p11c24
+make
+```

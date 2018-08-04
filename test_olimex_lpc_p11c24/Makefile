@@ -2,6 +2,8 @@
 # Pavel Kirienko, 2014 <pavel.kirienko@gmail.com>
 #
 
+BUILDDIR := build
+
 CPPSRC := $(wildcard src/*.cpp)                  \
           $(wildcard src/sys/*.cpp)
 
@@ -13,13 +15,15 @@ DEF = -DFW_VERSION_MAJOR=1 -DFW_VERSION_MINOR=0
 INC = -Isrc/sys                         \
       -isystem lpc_chip_11cxx_lib/inc
 
+JLINK_PART := LPC11C24
+
 #
 # UAVCAN library
 #
 
 DEF += -DUAVCAN_TINY=1
 
-include ../../../libuavcan/include.mk
+include $(BUILDDIR)/libuavcan/libuavcan/include.mk
 CPPSRC += $(LIBUAVCAN_SRC)
 INC += -I$(LIBUAVCAN_INC)
 
@@ -43,7 +47,6 @@ endif
 # Build configuration
 #
 
-BUILDDIR = build
 OBJDIR = $(BUILDDIR)/obj
 DEPDIR = $(BUILDDIR)/dep
 
@@ -111,11 +114,32 @@ $(CPPOBJ): $(OBJDIR)/%.o: %.cpp
 	@echo
 	$(CPPC) -c $(DEF) $(INC) $(CPPFLAGS) $< -o $@
 
+$(BUILDDIR)/libuavcan/libuavcan/include.mk : | $(BUILDDIR)
+	cd $| && git clone --recurse-submodules https://github.com/UAVCAN/libuavcan.git
+
 clean:
 	rm -rf $(BUILDDIR) dsdlc_generated
 
 size: $(ELF)
 	@if [ -f $(ELF) ]; then echo; $(SIZE) $(ELF); echo; fi;
+
+$(BUILDDIR)/$(JLINK_PART).jlink : $(BIN)
+	@echo "\
+    connect \n\
+    h \n\
+    rx 100 \n\
+    loadfile $< \n\
+    r \n\
+    q\n" > $@
+
+# do `make ENV_JLINK_COMMANDER=path/to/JLink jlinkto-olimex` to build
+# and upload firmware to an attached olimex lpcp11c24 dev board
+# using an attached JLink debug probe.
+jlinkto-olimex : $(BUILDDIR)/$(JLINK_PART).jlink
+	$(ENV_JLINK_COMMANDER) -Device $(JLINK_PART) \
+                           -If SWD \
+                           -Speed 4000 \
+                           -CommanderScript $<
 
 .PHONY: all clean size $(BUILDDIR)
 
