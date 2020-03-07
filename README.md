@@ -1,6 +1,8 @@
 Libuavcan platform driver for NXP LPC11C24
 ==========================================
 
+**[!!! THIS REPOSITORY HAS MOVED !!!](https://github.com/UAVCAN/platform_specific_components/tree/legacy-v0)**
+
 [![Build Status](https://travis-ci.org/UAVCAN/libuavcan_lpc11c24.svg?branch=master)](https://travis-ci.org/UAVCAN/libuavcan_lpc11c24)
 [![Gitter](https://img.shields.io/badge/gitter-join%20chat-green.svg)](https://gitter.im/UAVCAN/general)
 
